@@ -2,14 +2,16 @@ import React from 'react'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
 const PageHero = (props) => {
-  const {title} = props;
+  const {title,product} = props;
   return (
     <Wrapper>
       <div className="section-center">
         <h3>
           <Link to="/">
             Home
-          </Link> / {title}
+          </Link> / 
+          {product && <Link to="/products">products/</Link>}
+          {title}
         </h3>
       </div>
     </Wrapper>
