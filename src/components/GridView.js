@@ -4,7 +4,6 @@ import Product from './Product'
 
 const GridView = (props) => {
   const {products} = props;
-  console.log(products);
   return (
     <Wrapper>
       <div className="products-container">
