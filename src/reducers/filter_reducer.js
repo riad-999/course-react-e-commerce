@@ -22,6 +22,7 @@ const filter_reducer = (state, action) => {
       filters:{
         ...state.filters,
         maxPrice:max,
+        price:max,
         minPrice:min
       }
     }

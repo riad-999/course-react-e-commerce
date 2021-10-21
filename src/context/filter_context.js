@@ -41,7 +41,16 @@ export const FilterProvider = ({ children }) => {
   }
   const updateFilters = (e) => {
     const name = e.currentTarget.name;
-    const value = e.currentTarget.value;
+    let value = e.currentTarget.value;
+    if(name === 'category'){
+      value = e.currentTarget.textContent;
+    }
+    if(name === 'color'){
+      value = e.currentTarget.dataset.color;
+    }
+    if(name === 'price'){
+      value = parseInt(value);
+    }
     dispatch({type:UPDATE_FILTERS,payload:{
       name,
       value

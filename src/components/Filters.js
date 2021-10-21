@@ -8,12 +8,16 @@ const Filters = () => {
   const {
     filters:{
       text,category,company,color,
-      minPrice,maxPrice,shipping
+      minPrice,maxPrice,price,shipping
     },
     updateFilters,
     clearFilters,
     all_products
   } = useFilterContext();
+  const categories = getUniqueValues(all_products,'category');
+  const companies = getUniqueValues(all_products,'company');
+  const colors = getUniqueValues(all_products,'colors');
+
   return (
     <Wrapper>
       <div className="content">
@@ -22,6 +26,74 @@ const Filters = () => {
             <input type="search" name='text' 
             placeholder='search' className="search-input" 
             value={text} onChange={updateFilters} />
+          </div>
+          <div className="form-control">
+            <h5>category</h5>
+            <div>
+              {categories.map((cat,index) => {
+                return (
+                  <button key={index} 
+                  className={category === cat.toLowerCase() ? 'active' : null}
+                  onClick={updateFilters} type="button" name="category">
+                    {cat}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <div className="form-control">
+            <h5>company</h5>
+            <select name="company" value={company}
+             onChange={updateFilters} className="company">
+               {companies.map((company,index) => {
+                 return (
+                   <option value={company} key={index}>
+                     {company}
+                   </option>
+                 );
+               })}
+             </select>
+          </div>
+          <div className="form-control">
+            <h5>colors</h5>
+            <div className="colors">
+              {
+                colors.map((col,index) => {
+                  if(col === 'all'){
+                    return (
+                    <button type="button" 
+                    className={col === color ? 'active all-btn' : 'all-btn'} 
+                    data-color={col} name='color' 
+                    onClick={updateFilters}>
+                      all
+                    </button>
+                  );
+                  }
+                  return (
+                    <button type="button" 
+                    className={col === color ? 'active color-btn' : 'color-btn'} 
+                    key={index} data-color={col} 
+                    style={{background: col}} name='color' 
+                    onClick={updateFilters}>
+                      {col === color ? <FaCheck /> : null}
+                    </button>
+                  );
+                })
+              }
+            </div>
+          </div>
+          <div className="form-control">
+            <h5>price</h5>
+            <p className="price">
+              {formatPrice(price)}
+            </p>
+            <input type="range" 
+              name="price"
+              onChange={updateFilters}
+              min={minPrice} 
+              max={maxPrice}
+              value={price}
+              />
           </div>
         </form>
       </div>
