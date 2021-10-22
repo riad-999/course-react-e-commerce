@@ -51,13 +51,16 @@ export const FilterProvider = ({ children }) => {
     if(name === 'price'){
       value = parseInt(value);
     }
+    if(name === 'shipping'){
+      value = e.currentTarget.checked;
+    }
     dispatch({type:UPDATE_FILTERS,payload:{
       name,
       value
     }});
   }
   const clearFilters = () => {
-
+    dispatch({type: CLEAR_FILTERS});
   }
   const setListView = () => {
     dispatch({type:SET_LISTVIEW});
