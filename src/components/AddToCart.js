@@ -47,7 +47,7 @@ const AddToCart = (props) => {
           <AmountButtons amount={amount}
            increase={increase} decrease={decrease}/>
           <Link to="/cart" className="btn" 
-           onClick={() => addToCart(id,mainColor,amount,props.products)}>
+           onClick={() => addToCart(id,mainColor,amount,props.product)}>
             add to cart
           </Link>
       </div>
