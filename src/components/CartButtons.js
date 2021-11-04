@@ -5,10 +5,11 @@ import styled from 'styled-components'
 import { useProductsContext } from '../context/products_context'
 import { useCartContext } from '../context/cart_context'
 import { useUserContext } from '../context/user_context'
+import { CLEAR_CART } from '../actions'
 
 const CartButtons = () => {
   const {closeSidebar} = useProductsContext();
-  const {total_items} = useCartContext();
+  const {total_items,clearCart} = useCartContext();
   const {loginWithRedirect,myUser,logout} = useUserContext();
   console.log(`my user home : ${myUser}`);
   return (
@@ -28,9 +29,12 @@ const CartButtons = () => {
       </button>
       :
       <button type="button" className="auth-btn" onClick={
-        () => logout({
-          returnTo : window.location.origin
-        })
+        () => {
+          CLEAR_CART();
+          logout({
+            returnTo : window.location.origin
+          })
+        }
       }>
         Logout <FaUserMinus />
       </button> 
