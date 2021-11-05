@@ -22,7 +22,7 @@ const CheckoutForm = () => {
 
   const [succeeded,setSucceeded] = useState(false);
   const [error,setError] = useState(null);
-  const [processing,setProcessing] = useState('');
+  const [processing,setProcessing] = useState(false);
   const [disabled, setDisabled] = useState(true);
   const [clientSecret,setClientSecret] = useState('');
 
@@ -48,25 +48,47 @@ const CheckoutForm = () => {
     }
     const createPaymentIntent = async () => {
       try{
-        const data = await axios.post(
+        const response = await fetch(
           '/.netlify/functions/create-payment-intent',
-          JSON.stringify(
           {
-            cart,
-            shipping_fee,
-            total_amount
-          })
+            method: "POST",
+            body: JSON.stringify({cart, shipping_fee, total_amount})
+          }
         );
+        const data = await response.json();
+        if(response.status !== 200){
+          throw new Error (data.message);
+        }
+        setClientSecret(data.clientSecret);
       } 
       catch (error) {
-
       }
     }
     const handleChange = (event) => {
-
+      setDisabled(event.empty);
+      setError(event.error ? event.error.message : '');
     }
-    const handleSubmit = (ev) => {
-
+    const handleSubmit = async (ev) => {
+      ev.preventDefault();
+      setProcessing(true);
+      const payload = await stripe.confirmCardPayment(clientSecret,{
+        payment_method: {
+          card: elements.getElement(CardElement)
+        }
+      });
+      if(payload.error){
+      setError(`payment failed ${payload.error.message}`);
+      setProcessing(false);
+      }
+      else {
+        setError(null);
+        setProcessing(false);
+        setSucceeded(true);
+        setTimeout(() => {
+          clearCart();
+          history.push('/');
+        },10000);
+      }
     }
     useEffect(() => {
       createPaymentIntent();
@@ -74,37 +96,51 @@ const CheckoutForm = () => {
     },[]);
 
   return (
-    <form id="payment-form" onSubmit={handleSubmit}>
-      <CardElement 
-        id="card-element" 
-        options={cardStyle} 
-        onChange={handleChange} 
-      />
-      <button 
-        type="button" 
-        disabled={processing || disabled || succeeded} 
-        id="submit"
-      >
-        <span id="button-text">
-          {processing ? 
-          <div className="spinner" id="spinner"></div> : 
-          'Pay'}
-        </span>
-      </button>
+    <div>
       {
-      error && 
-      <div role="alert" className="card-error">
-          {error}
-      </div>
+        succeeded ? 
+        <article>
+          <h4>thank you</h4>
+          <h4>your payment was successfull</h4>
+          <h4>Redirecting to home page shortly</h4>
+        </article> : 
+        <article>
+          <h4>hellow, {myUser && myUser.name}</h4>
+          <p>your total is {formatPrice(total_amount)}</p>
+          <p>Test Card Number : 4242 4242 4242 4242 </p>
+        </article>  
       }
-      <p className={succeeded ? 'result-message' : 'result-message'}>
-        payment succeeded, see the result in your 
-        <a href={`https://dashboard.stripe.com/tesst/payments`}>
-          stripe dashboard
-        </a>
-        refresh the page to pay again
-      </p>
-    </form>
+      <form id="payment-form" onSubmit={handleSubmit}>
+        <CardElement 
+          id="card-element" 
+          options={cardStyle} 
+          onChange={handleChange} 
+        />
+        <button  
+          disabled={processing || disabled || succeeded} 
+          id="submit"
+        >
+          <span id="button-text">
+            {processing ? 
+            <div className="spinner" id="spinner"></div> : 
+            'Pay'}
+          </span>
+        </button>
+        {
+        error && 
+        <div role="alert" className="card-error">
+            {error}
+        </div>
+        }
+        <p className={succeeded ? 'result-message' : 'result-message hidden'}>
+          payment succeeded, see the result in your 
+          <a href={`https://dashboard.stripe.com/tesst/payments`}>
+            stripe dashboard
+          </a>
+          refresh the page to pay again
+        </p>
+      </form>
+    </div>
   );
 }
 
